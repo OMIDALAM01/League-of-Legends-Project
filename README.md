@@ -61,7 +61,7 @@ The scatter plot shows a positive correlation between `goldat15` and `killsat15`
 Teams that win matches tend to earn around 2,400 more gold by 15 minutes than losing teams, underscoring the importance of early-game performance in determining match outcomes.
 
 
-# Step 3: Assessment of Missingness
+# Assessment of Missingness
 
 ## Identifying NMAR
 
@@ -93,7 +93,7 @@ The plot shows that rows with missing `goldat15` values have a slightly differen
 The vertical line represents the observed test statistic, while the shaded area shows the distribution under the null hypothesis. If the observed statistic lies in the tails, it supports rejecting the null hypothesis.
 
 
-# Step 4: Hypothesis Testing
+# Hypothesis Testing
 
 ## Hypothesis
 - **Null Hypothesis (H₀):** The average gold earned at 15 minutes (`goldat15`) is equal for teams on the **Blue Side** and **Red Side**.
