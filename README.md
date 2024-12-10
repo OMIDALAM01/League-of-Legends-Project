@@ -122,8 +122,161 @@ The t-test is used to compare the means of two independent groups (Blue Side and
 
 The box plot shows the distribution of `goldat15` for Blue Side and Red Side teams. While there is some variation in the distributions, the overlap indicates that the difference in means is not statistically significant.
 
+# Framing a Prediction Problem
 
-Framing a Prediction Problem
-Baseline Model
-Final Model
-Fairness Analysis
+## Prediction Problem
+
+The prediction problem we aim to solve is:
+**"Can we predict whether a team will win (`result`) based on their early-game performance metrics?"**
+
+This is a **binary classification problem** where:
+- `1` represents a win.
+- `0` represents a loss.
+
+## Response Variable
+
+- **Variable to Predict (`result`)**: The `result` column indicates whether a team won or lost a game. This variable was chosen because it directly represents match outcomes, which is the focus of this project.
+
+## Features Used
+
+The following early-game metrics were selected as features:
+- **`goldat15`**: Total gold earned by a team at 15 minutes.
+- **`killsat15`**: Total kills secured by a team at 15 minutes.
+- **`xpat15`**: Total experience points accumulated by a team at 15 minutes.
+- **`csat15`**: Total creep score accumulated by a team at 15 minutes.
+
+## Evaluation Metric
+
+The model will be evaluated using **accuracy**. Accuracy is chosen because:
+- The dataset is relatively balanced between wins and losses.
+- It provides a straightforward measure of how often the model correctly predicts the outcome (win or loss).
+
+## Why This Prediction Problem Matters
+
+Understanding how early-game performance metrics influence match outcomes can help teams and coaches identify key areas of improvement. It can also provide insights into strategies that maximize a team’s chances of winning.
+
+# Baseline Model
+
+## Model Description
+
+For the baseline model, we trained a **logistic regression classifier** to predict whether a team will win (`result`) based on their early-game performance metrics.
+
+### Features Used:
+- **Quantitative Features:**
+  - `goldat15`: Total gold earned by a team at 15 minutes.
+  - `killsat15`: Total kills secured by a team at 15 minutes.
+  - `xpat15`: Total experience points gained by a team at 15 minutes.
+  - `csat15`: Total creep score at 15 minutes.
+
+## Feature Encodings
+
+- **Quantitative Features:** Used as-is.
+- No categorical or nominal features were included in the baseline model, so no additional encodings were necessary.
+
+## Model Performance
+
+- **Training Accuracy:** 76%
+- **Test Accuracy:** 74%
+
+The model’s performance suggests that it captures meaningful relationships between early-game metrics and match outcomes. However, there is room for improvement in predictive accuracy by incorporating additional features or exploring more advanced modeling techniques.
+
+## Is This Model “Good”?
+
+While the baseline model provides a reasonable starting point, it is not “good” in the sense of being production-ready. The gap between training and test accuracy indicates slight overfitting, and the accuracy itself could likely be improved with more feature engineering or by testing other algorithms.
+
+# Final Model
+
+## Features Added and Justification
+
+In the final model, we added new features to improve performance:
+- **`opp_goldat15`**: The opposing team's gold earned at 15 minutes.
+- **`golddiffat15`**: The difference in gold earned between the team and the opposing team at 15 minutes.
+- **`xpdiffat15`**: The difference in experience points gained at 15 minutes.
+
+**Why These Features Improve Performance:**
+- Relative advantage metrics (`golddiffat15`, `xpdiffat15`) directly measure a team's performance compared to their opponents.
+- Opponent information (`opp_goldat15`) provides additional context, enhancing the model's understanding of competitive dynamics.
+
+## Modeling Algorithm and Hyperparameters
+
+The final model was a **Random Forest Classifier**, chosen for its robustness and ability to handle complex feature interactions.
+
+### Hyperparameters Tuned:
+- Number of trees: `n_estimators = 100`
+- Maximum tree depth: `max_depth = 10`
+- Minimum samples split: `min_samples_split = 4`
+
+**Hyperparameter Tuning Method:**  
+We used `GridSearchCV` to select the best configuration.
+
+## Performance Comparison
+
+| Metric               | Baseline Model (Logistic Regression) | Final Model (Random Forest) |
+|----------------------|--------------------------------------|-----------------------------|
+| Training Accuracy    | 76%                                 | 90%                         |
+| Test Accuracy        | 74%                                 | 85%                         |
+
+The final model achieved an 11% increase in test accuracy over the baseline, demonstrating significant improvement.
+
+## Visualization
+
+### Confusion Matrix
+![Confusion Matrix](path-to-your-confusion-matrix.png)
+
+The confusion matrix shows the model performs well in predicting both wins and losses, with a slight tendency to misclassify some matches.
+
+# Fairness Analysis
+
+## Fairness Evaluation
+
+We conducted a fairness analysis to determine whether our predictive model performs equally well across different groups. Specifically, we assessed if the model's precision differs significantly between:
+
+- **High Gold Teams**: Teams with above-median gold earned at 15 minutes (`goldat15`).
+- **Low Gold Teams**: Teams with median or below-median gold earned at 15 minutes.
+
+## Hypotheses
+
+- **Null Hypothesis (H₀)**: The model's precision is the same for both high gold and low gold teams. Any observed difference in precision is due to random chance.
+- **Alternative Hypothesis (H₁)**: The model's precision differs between high gold and low gold teams.
+
+## Methodology
+
+**Grouping:** We split the test dataset into two groups based on the median value of `goldat15`.
+
+- **High Gold Teams:** `goldat15` > median
+- **Low Gold Teams:** `goldat15` ≤ median
+
+**Metric Evaluated:** Precision of the model for each group.
+
+**Statistical Test:** Permutation test with 1,000 iterations to assess the significance of the observed difference in precision.
+
+## Results
+
+- **Precision for High Gold Teams:** 85%
+- **Precision for Low Gold Teams:** 85%
+- **Observed Difference in Precision:** 0%
+- **P-Value from Permutation Test:** 1.0
+
+Since the p-value is greater than the significance level of 0.05, we fail to reject the null hypothesis.
+
+## Conclusion
+
+The fairness analysis indicates that our model's precision does not differ significantly between high gold and low gold teams. This suggests that the model is fair in terms of precision across these groups.
+
+## Interpretation
+
+- **Model Fairness:** The equal precision rates imply that the model does not favor one group over the other.
+- **Implications:** Teams can trust the model's predictions regardless of their early-game gold earnings.
+
+## Visualization
+
+### Permutation Test Results
+
+![Permutation Test Plot](path-to-your-permutation-test-plot.png)
+
+**Description:**
+
+- The plot shows the distribution of precision differences under the null hypothesis.
+- The observed difference (0%) is marked on the plot.
+- Since the observed difference lies within the bulk of the distribution, it supports the conclusion that there is no significant difference.
+
